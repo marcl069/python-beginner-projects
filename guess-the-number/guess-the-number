@@ -1,0 +1,115 @@
+import random as rnd
+from colorama import init
+from colorama import Fore
+
+# Инициализация библиотеки colorama для отображения цветного текста в консоли
+# Initialize colorama to enable colored text in the console
+init()
+
+# Константы: количество попыток для каждого уровня сложности
+# Constants: number of attempts for each difficulty level
+FIRST_LVL = 10   # Простой уровень — 10 попыток / Easy level — 10 attempts
+SECOND_LVL = 5   # Средний уровень — 5 попыток / Medium level — 5 attempts
+THIRD_LVL = 3    # Сложный уровень — 3 попытки / Hard level — 3 attempts
+
+# Переменные для отслеживания состояния игры
+# Variables to track game state
+player_attempts = 0  # Количество оставшихся попыток / Number of remaining attempts
+in_game = True       # Флаг, указывающий, идёт ли игра / Flag indicating if the game is still running
+
+# Генерация случайного числа от 1 до 100
+# Generate a random number between 1 and 100
+rndNumber = rnd.randint(1, 100)
+
+
+def checkPlayerMoove(move):
+    """
+    Функция проверяет ход игрока: сравнивает ввод с загаданным числом.
+    The function checks the player's move: compares input with the secret number.
+    
+    :param move: число, введённое игроком / the number entered by the player
+    :return: строка с результатом и подсказкой / string with result and hint
+    """
+    global player_attempts, in_game
+
+    # Уменьшаем количество попыток на 1
+    # Decrease the number of attempts by 1
+    player_attempts -= 1
+
+    # Если игрок угадал число
+    # If the player guessed the number
+    if move == rndNumber:
+        in_game = False  # Завершаем игру / End the game
+        return Fore.GREEN + 'Ты молодец! Ты победил!' + Fore.RESET
+
+    # Если попытки закончились
+    # If there are no attempts left
+    elif player_attempts <= 0:
+        in_game = False  # Завершаем игру / End the game
+        return Fore.RED + f'К сожалению, ты проиграл! Удачи в следующий раз!' + Fore.RESET
+
+    else:
+        # Подсказка: загаданное число больше или меньше
+        # Hint: the secret number is higher or lower
+        if move < rndNumber:
+            return Fore.YELLOW + f'Попробуй ещё! У тебя осталось {player_attempts} попыток.\nЗагаданное число больше!' + Fore.RESET
+        else:
+            return Fore.YELLOW + f'Попробуй ещё! У тебя осталось {player_attempts} попыток.\nЗагаданное число меньше!' + Fore.RESET
+
+
+# Цикл для выбора уровня сложности с обработкой ошибок
+# Loop for difficulty level selection with error handling
+while True:
+    try:
+        print('Выбери уровень сложности: (1-простой, 2-средний, 3-сложный)')
+        player_lvl = int(input('>>> '))
+        # Проверка, входит ли введённое значение в допустимый диапазон
+        # Check if the input is within valid range
+        if player_lvl not in [1, 2, 3]:
+            print('Выбери один из уровней сложности!\n1-простой, 2-средний, 3-сложный')
+            continue  # Повторяем запрос, если неверно / Repeat prompt if invalid
+        else:
+            break  # Выход из цикла при корректном вводе / Exit loop on valid input
+        
+    except ValueError:
+        # Обработка случая, когда введено не число
+        # Handle case when input is not a number
+        print('Введи число от 1 до 3!') 
+
+
+# Назначение количества попыток в зависимости от выбранного уровня
+# Assign number of attempts based on selected level
+if player_lvl == 1:
+    player_attempts = FIRST_LVL
+elif player_lvl == 2:
+    player_attempts = SECOND_LVL
+else:
+    player_attempts = THIRD_LVL
+
+# Сообщение о старте игры
+# Game start message
+print(f'Ты выбрал {player_lvl} уровень сложности.\nУ тебя есть {player_attempts} попыток!')
+print('Игра началась!\nПопробуй угадать число от 1 до 100!')
+
+# Основной игровой цикл
+# Main game loop
+while in_game:
+    try:
+        player_move = int(input('>>> '))  # Ввод числа игроком
+                                          # Player enters a number
+        result = checkPlayerMoove(player_move)  # Проверка ответа
+                                                # Check the answer
+        print(result)  # Вывод результата
+                       # Print result
+        if not in_game:  # Если игра окончена — выходим
+                         # If game is over — exit loop
+            break
+
+    except ValueError:
+        # Обработка некорректного ввода (не число)
+        # Handle invalid input (non-numeric)
+        print('Введите число!')
+
+# После окончания игры показываем загаданное число
+# After the game ends, reveal the secret number
+print(f'Загаданное число было: {rndNumber}')
