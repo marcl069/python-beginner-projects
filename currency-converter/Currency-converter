@@ -1,0 +1,124 @@
+import requests
+
+# URL для запроса курса валют (не используется напрямую из-за форматирования строки дальше)
+# URL for currency exchange rate request (not used directly due to string formatting later)
+URL = 'https://api.frankfurter.app/latest?from={}&to={}'
+
+# Словарь с доступными валютами и их кодами по стандарту ISO 4217
+# Dictionary with available currencies and their ISO 4217 codes
+CURRENCIES = {
+    1: 'USD',  # Доллар США / US Dollar
+    2: 'EUR',  # Евро / Euro
+    3: 'JPY',  # Японская иена / Japanese Yen
+    4: 'GBP',  # Британский фунт / British Pound
+    5: 'CNY'   # Китайский юань / Chinese Yuan
+}
+
+# Цикл для ввода суммы денег
+# Loop to input the amount of money
+while True:
+    print('Введите сумму: ')
+    try:
+        sum = int(input('>>> '))
+
+        # Проверка, что сумма не равна нулю
+        # Check that the amount is not zero
+        if sum != 0:
+            break
+        else:
+            print('Сумма не может быть равна 0!')
+
+    except ValueError:
+        # Обработка ошибки, если пользователь ввёл не число
+        # Handle error if user enters non-numeric value
+        print('Используйте цифры')
+
+# Вывод меню выбора исходной валюты
+# Display menu for selecting base currency
+print('Выберите валюту:\n1-USD (Доллар США);\n2-EUR (Евро);\n3-JPY (Японская иена)\n4-GBP (Британский фунт)\n5-CNY (Китайский юань)\n6-Другая валюта')
+
+# Цикл для ввода номера исходной валюты
+# Loop to input base currency number
+while True:
+    try:
+        index_base_currency = int(input('>>> '))
+        # Проверка, что введённое число в допустимом диапазоне
+        # Check if the entered number is in the valid range
+        if index_base_currency not in [1, 2, 3, 4, 5, 6]:
+            print('Используйте цифры 1-6!')
+            continue
+        else:
+            break
+    except ValueError:
+        # Обработка ошибки, если введено не число
+        # Handle error if input is not a number
+        print('Используйте цифры 1-6!')
+
+# Определение кода исходной валюты
+# Determine base currency code
+if index_base_currency in [1, 2, 3, 4, 5]:
+    base_currency = CURRENCIES[index_base_currency]
+elif index_base_currency == 6:
+    # Ввод пользовательской валюты вручную
+    # Allow user to input custom currency manually
+    print('Введите код валюты по стандарту ISO 4217')
+    print('Например: USD')
+    base_currency = input('>>> ').upper()
+
+# Вывод меню для выбора целевой валюты
+# Display menu for selecting target currency
+print('Выберите валюту:\n1-USD (Доллар США);\n2-EUR (Евро);\n3-JPY (Японская иена)\n4-GBP (Британский фунт)\n5-CNY (Китайский юань)\n6-Другая валюта')
+
+# Цикл для ввода номера целевой валюты
+# Loop to input target currency number
+while True:
+    try:
+        index_target_currency = int(input('>>> '))
+        # Проверка, что введённое число в допустимом диапазоне
+        # Check if the entered number is in the valid range
+        if index_target_currency not in [1, 2, 3, 4, 5, 6]:
+            print('Используйте цифры 1-6!')
+            continue
+        else:
+            break
+    except ValueError:
+        # Обработка ошибки, если введено не число
+        # Handle error if input is not a number
+        print('Используйте цифры 1-6!')
+
+# Определение кода целевой валюты
+# Determine target currency code
+if index_target_currency in [1, 2, 3, 4, 5]:
+    target_currency = CURRENCIES[index_target_currency]
+elif index_target_currency == 6:
+    # Ввод пользовательской целевой валюты вручную
+    # Allow user to input custom target currency manually
+    print('Введите код валюты по стандарту ISO 4217')
+    print('Например: USD')
+    target_currency = input('>>> ').upper()
+
+# Отправка GET-запроса к API для получения курса валют
+# Send GET request to API to get exchange rates
+response = requests.get(f'https://api.frankfurter.app/latest?base={base_currency}')
+
+# Проверка успешности запроса
+# Check if request was successful
+if response.status_code == 200:
+    data = response.json()
+    # Проверка, поддерживается ли целевая валюта в ответе
+    # Check if target currency is supported in the response
+    if target_currency in data['rates']:
+        rate = data['rates'][target_currency]  # Получение курса обмена
+        result = sum * rate                   # Вычисление результата
+        # Вывод результата конвертации
+        # Output conversion result
+        print(f"{sum} {base_currency} = {result:.2f} {target_currency}")
+    else:
+        # Сообщение, если валюта не поддерживается
+        # Message if currency is not supported
+        print(f"Валюта {target_currency} не поддерживается.")
+else:
+    # Вывод ошибки, если запрос к API завершился неудачно
+    # Output error if API request failed
+    print(f"Ошибка API: {response.status_code}")
+    print(response.text)
