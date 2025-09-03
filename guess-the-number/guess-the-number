@@ -21,7 +21,6 @@ in_game = True       # Флаг, указывающий, идёт ли игра 
 # Generate a random number between 1 and 100
 rndNumber = rnd.randint(1, 100)
 
-
 def checkPlayerMoove(move):
     """
     Функция проверяет ход игрока: сравнивает ввод с загаданным числом.
@@ -35,7 +34,7 @@ def checkPlayerMoove(move):
     # Уменьшаем количество попыток на 1
     # Decrease the number of attempts by 1
     player_attempts -= 1
-
+    
     # Если игрок угадал число
     # If the player guessed the number
     if move == rndNumber:
@@ -46,16 +45,21 @@ def checkPlayerMoove(move):
     # If there are no attempts left
     elif player_attempts <= 0:
         in_game = False  # Завершаем игру / End the game
-        return Fore.RED + f'К сожалению, ты проиграл! Удачи в следующий раз!' + Fore.RESET
+        return Fore.RED + 'К сожалению, ты проиграл! Удачи в следующий раз!' + Fore.RESET
+    
+    # Если введено число вне диапазона 1-100
+    # If the entered number is outside the range 1-100
+    elif move < 1 or move > 100:
+        player_attempts += 1  # Возвращаем попытку, так как ошибка ввода / Return the attempt due to input error
+        return Fore.YELLOW + f'Введите число от 1 до 100!\nУ тебя осталось {player_attempts} попыток!' + Fore.RESET
 
     else:
         # Подсказка: загаданное число больше или меньше
         # Hint: the secret number is higher or lower
         if move < rndNumber:
-            return Fore.YELLOW + f'Попробуй ещё! У тебя осталось {player_attempts} попыток.\nЗагаданное число больше!' + Fore.RESET
+            return Fore.YELLOW + f'Загаданное число больше!' + Fore.RESET + f'\nУ тебя осталось {player_attempts} попыток'
         else:
-            return Fore.YELLOW + f'Попробуй ещё! У тебя осталось {player_attempts} попыток.\nЗагаданное число меньше!' + Fore.RESET
-
+            return Fore.YELLOW + f'Загаданное число меньше!' + Fore.RESET + f'\nУ тебя осталось {player_attempts} попыток'
 
 # Цикл для выбора уровня сложности с обработкой ошибок
 # Loop for difficulty level selection with error handling
@@ -95,16 +99,13 @@ print('Игра началась!\nПопробуй угадать число о
 # Main game loop
 while in_game:
     try:
-        player_move = int(input('>>> '))  # Ввод числа игроком
-                                          # Player enters a number
-        result = checkPlayerMoove(player_move)  # Проверка ответа
-                                                # Check the answer
-        print(result)  # Вывод результата
-                       # Print result
-        if not in_game:  # Если игра окончена — выходим
-                         # If game is over — exit loop
+        player_move = int(input('>>> '))  # Ввод числа игроком / Player enters a number
+        result = checkPlayerMoove(player_move)  # Проверка ответа / Check the answer
+        print(result)  # Вывод результата / Print result
+        
+        if not in_game:  # Если игра окончена — выходим / If game is over — exit loop
             break
-
+        
     except ValueError:
         # Обработка некорректного ввода (не число)
         # Handle invalid input (non-numeric)
